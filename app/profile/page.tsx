@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import axios from "axios";
 import { useRideStore } from "@/store";
 import { useRouter } from "next/navigation";
 
@@ -30,26 +31,30 @@ export default function ProfilePage() {
     try {
       const backendUrl =
         process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001";
-      const response = await fetch(`${backendUrl}/api/auth/profile`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+      const response = await axios.put(
+        `${backendUrl}/api/auth/profile`,
+        { name },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         },
-        body: JSON.stringify({ name }),
-      });
+      );
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to update profile");
-      }
-
-      const data = await response.json();
+      const data = response.data;
       setMessage({ type: "success", text: "Profile updated successfully" });
       // Update local state
       useRideStore.setState({ user: { ...user!, name: data.name } });
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : "Update failed";
+      let errorMessage = "Update failed";
+      if (axios.isAxiosError(err)) {
+        errorMessage =
+          (err.response?.data as { error?: string })?.error ||
+          "Failed to update profile";
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+      }
       setMessage({ type: "error", text: errorMessage });
     } finally {
       setLoading(false);

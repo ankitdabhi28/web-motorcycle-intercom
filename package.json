@@ -2,13 +2,28 @@
   "name": "motorcycle-intercom",
   "version": "0.1.0",
   "private": true,
+  "author": {
+    "name": "Ankit Dabhi",
+    "email": "dabhiankit9033@gmail.com",
+    "url": "https://github.com/ankitdabhi28"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ankitdabhi28/web-motorcycle-intercom.git"
+  },
   "scripts": {
+    "preinstall": "node -e \"if (process.version.slice(1).split('.')[0] < 18) { console.error('Node.js 18 or higher is required. Current version: ' + process.version); process.exit(1); }\"",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
   },
+  "engines": {
+    "node": ">=18.0.0",
+    "yarn": ">=1.22.0"
+  },
   "dependencies": {
+    "axios": "1.13.2",
     "leaflet": "^1.9.4",
     "next": "16.2.3",
     "react": "19.2.4",

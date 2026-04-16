@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import axios from "axios";
 import { RideState, Rider, MeshNeighbor } from "@/lib/types";
 
 interface StoreState extends RideState {
@@ -60,16 +61,11 @@ export const useRideStore = create<StoreState>((set, get) => ({
   login: async (email, password) => {
     const backendUrl =
       process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001";
-    const response = await fetch(`${backendUrl}/api/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+    const response = await axios.post(`${backendUrl}/api/auth/login`, {
+      email,
+      password,
     });
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || "Login failed");
-    }
-    const data = await response.json();
+    const data = response.data;
     set({
       token: data.token,
       user: { userId: data.userId, email: data.email, name: data.name },
@@ -79,16 +75,12 @@ export const useRideStore = create<StoreState>((set, get) => ({
   register: async (email, password, name) => {
     const backendUrl =
       process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001";
-    const response = await fetch(`${backendUrl}/api/auth/register`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, name }),
+    const response = await axios.post(`${backendUrl}/api/auth/register`, {
+      email,
+      password,
+      name,
     });
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || "Registration failed");
-    }
-    const data = await response.json();
+    const data = response.data;
     set({
       token: data.token,
       user: { userId: data.userId, email: data.email, name: data.name },
@@ -111,15 +103,17 @@ export const useRideStore = create<StoreState>((set, get) => ({
     const token = get().token;
     const backendUrl =
       process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001";
-    const response = await fetch(`${backendUrl}/api/rides`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+    const response = await axios.post(
+      `${backendUrl}/api/rides`,
+      { name: rideName },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
       },
-      body: JSON.stringify({ name: rideName }),
-    });
-    const { rideCode } = await response.json();
+    );
+    const { rideCode } = response.data;
     set({
       rideCode,
       isLeader: true,
@@ -133,21 +127,30 @@ export const useRideStore = create<StoreState>((set, get) => ({
     const backendUrl =
       process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001";
     const localRider = get().localRider;
-    const response = await fetch(`${backendUrl}/api/rides/${rideCode}/join`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ riderId: localRider.riderId }),
-    });
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(
-        errorData.message || errorData.error || "Failed to join ride",
+    try {
+      await axios.post(
+        `${backendUrl}/api/rides/${rideCode}/join`,
+        { riderId: localRider.riderId },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        },
       );
+      set({ rideCode, isAudioRunning: true });
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const errorMessage =
+          (error.response?.data as { message?: string; error?: string })
+            ?.message ||
+          (error.response?.data as { message?: string; error?: string })
+            ?.error ||
+          "Failed to join ride";
+        throw new Error(errorMessage);
+      }
+      throw error;
     }
-    set({ rideCode, isAudioRunning: true });
   },
 
   leaveRide: async () => {
@@ -155,13 +158,12 @@ export const useRideStore = create<StoreState>((set, get) => ({
     if (!rideCode) return;
     const backendUrl =
       process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001";
-    await fetch(`${backendUrl}/api/rides/${rideCode}/leave`, {
-      method: "DELETE",
+    await axios.delete(`${backendUrl}/api/rides/${rideCode}/leave`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ riderId: localRider.riderId }),
+      data: { riderId: localRider.riderId },
     });
     set({
       rideCode: null,

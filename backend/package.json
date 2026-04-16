@@ -1,18 +1,32 @@
 {
-  "name": "backend",
+  "name": "motorcycle-intercom-backend",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "preinstall": "node -e \"if (process.version.slice(1).split('.')[0] < 18) { console.error('Node.js 18 or higher is required. Current version: ' + process.version); process.exit(1); }\"",
     "dev": "nodemon --exec ts-node src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js"
   },
   "keywords": [],
-  "author": "",
+  "author": {
+    "name": "Ankit Dabhi",
+    "email": "dabhiankit9033@gmail.com",
+    "url": "https://github.com/ankitdabhi28"
+  },
   "license": "ISC",
-  "description": "",
+  "description": "Backend API for Motorcycle Intercom - Real-time mesh audio communication for motorcycle riders",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ankitdabhi28/web-motorcycle-intercom.git"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "yarn": ">=1.22.0"
+  },
   "dependencies": {
     "@types/pg": "^8.20.0",
+    "axios": "1.13.2",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",

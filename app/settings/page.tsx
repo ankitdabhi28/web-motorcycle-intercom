@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useRideStore } from "@/store";
 
@@ -33,15 +34,14 @@ export default function SettingsPage() {
     setSaving(true);
     try {
       // Update user profile
-      await fetch(
+      await axios.put(
         `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/api/auth/profile`,
+        { name, email },
         {
-          method: "PUT",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-          body: JSON.stringify({ name, email }),
         },
       );
 
