@@ -127,13 +127,9 @@ export const useRideStore = create<StoreState>((set, get) => ({
 
       set({ token, user: { userId, email, name }, isAuthLoading: false });
 
-      // Restore active ride if exists
-      if (activeRide) {
-        get().restoreRideState(
-          activeRide.rideCode,
-          activeRide.rideId,
-          activeRide.isLeader,
-        );
+      // Redirect to ride route if active ride exists
+      if (activeRide && typeof window !== "undefined") {
+        window.location.href = `/ride/${activeRide.rideCode}`;
       }
     } catch (error) {
       console.error("Auth initialization error:", error);
