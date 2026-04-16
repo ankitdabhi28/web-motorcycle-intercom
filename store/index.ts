@@ -1,13 +1,7 @@
 import { create } from "zustand";
 import axios from "axios";
 import { RideState, Rider, MeshNeighbor } from "@/lib/types";
-import {
-  setToken,
-  getToken,
-  removeToken,
-  fetchCurrentUser,
-  fetchActiveRides,
-} from "@/lib/auth";
+import { setToken, getToken, removeToken, fetchCurrentUser } from "@/lib/auth";
 
 interface StoreState extends RideState {
   // Auth actions
@@ -22,7 +16,11 @@ interface StoreState extends RideState {
     token: string,
     user: { userId: string; email: string; name: string },
   ) => void;
-  restoreRideState: (rideCode: string, rideId: string) => void;
+  restoreRideState: (
+    rideCode: string,
+    rideId: string,
+    isLeader?: boolean,
+  ) => void;
 
   // Ride actions
   startRide: (rideName: string) => Promise<{ rideCode: string }>;
@@ -124,17 +122,18 @@ export const useRideStore = create<StoreState>((set, get) => ({
     }
 
     try {
-      const user = await fetchCurrentUser(token);
-      set({ token, user, isAuthLoading: false });
+      const data = await fetchCurrentUser(token);
+      const { userId, email, name, activeRide } = data;
 
-      // Check for active rides
-      const riderId = `rider-${user.userId}`; // Assuming riderId pattern
-      const activeRides = await fetchActiveRides(token, riderId);
+      set({ token, user: { userId, email, name }, isAuthLoading: false });
 
-      if (activeRides.length > 0) {
-        // Restore the most recent active ride
-        const latestRide = activeRides[0];
-        get().restoreRideState(latestRide.rideCode, latestRide.rideId);
+      // Restore active ride if exists
+      if (activeRide) {
+        get().restoreRideState(
+          activeRide.rideCode,
+          activeRide.rideId,
+          activeRide.isLeader,
+        );
       }
     } catch (error) {
       console.error("Auth initialization error:", error);
@@ -148,8 +147,8 @@ export const useRideStore = create<StoreState>((set, get) => ({
     set({ token, user });
   },
 
-  restoreRideState: (rideCode, rideId) => {
-    set({ rideCode, rideId, isAudioRunning: true });
+  restoreRideState: (rideCode, rideId, isLeader = false) => {
+    set({ rideCode, rideId, isLeader, isAudioRunning: true });
   },
 
   // Methods

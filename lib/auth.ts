@@ -4,9 +4,10 @@
 
 import axios from "axios";
 
-const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001";
+const backendUrl =
+  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001";
 
-// Token storage helpers
+// Token storage helpers (only token, no user data)
 export const setToken = (token: string) => {
   localStorage.setItem("token", token);
 };
@@ -20,7 +21,7 @@ export const removeToken = () => {
   localStorage.removeItem("token");
 };
 
-// API call to fetch current user
+// API call to fetch current user with active ride info
 export const fetchCurrentUser = async (token: string) => {
   const response = await axios.get(`${backendUrl}/api/auth/me`, {
     headers: { Authorization: `Bearer ${token}` },
@@ -28,18 +29,11 @@ export const fetchCurrentUser = async (token: string) => {
   return response.data;
 };
 
-// API call to fetch active rides
-export const fetchActiveRides = async (token: string, riderId: string) => {
-  const response = await axios.get(`${backendUrl}/api/rides/active`, {
-    headers: { Authorization: `Bearer ${token}` },
-    params: { riderId },
-  });
-  return response.data.rides;
-};
-
 // Token refresh
 export const refreshToken = async (token: string) => {
-  const response = await axios.post(`${backendUrl}/api/auth/refresh`, { token });
+  const response = await axios.post(`${backendUrl}/api/auth/refresh`, {
+    token,
+  });
   return response.data.token;
 };
 
@@ -75,6 +69,6 @@ export const setupAxiosInterceptor = () => {
       }
 
       return Promise.reject(error);
-    }
+    },
   );
 };

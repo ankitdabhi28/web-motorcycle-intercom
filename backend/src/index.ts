@@ -151,7 +151,33 @@ app.get("/api/auth/me", authMiddleware, async (req: AuthRequest, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    res.json({ userId: user.userId, email: user.email, name: user.name });
+    // Check for active rides for this user
+    const riderId = `rider-${user.userId}`;
+    const activeRides = await rideModel.getActiveRidesByRiderId(riderId);
+
+    // Get the most recent active ride if exists
+    let activeRide = null;
+    if (activeRides.length > 0) {
+      const latestRide = activeRides[0];
+      const participants = await rideModel.getRideParticipants(
+        latestRide.rideId,
+      );
+      activeRide = {
+        rideId: latestRide.rideId,
+        rideCode: latestRide.rideCode,
+        name: latestRide.name,
+        createdBy: latestRide.createdBy,
+        isLeader: latestRide.createdBy === user.userId,
+        participants,
+      };
+    }
+
+    res.json({
+      userId: user.userId,
+      email: user.email,
+      name: user.name,
+      activeRide,
+    });
   } catch (error) {
     console.error("Get current user error:", error);
     res.status(500).json({ error: "Failed to get user" });
@@ -166,23 +192,6 @@ app.get("/api/rides", authMiddleware, async (req: AuthRequest, res) => {
   } catch (error) {
     console.error("List rides error:", error);
     res.status(500).json({ error: "Failed to list rides" });
-  }
-});
-
-// Get active rides for a rider
-app.get("/api/rides/active", authMiddleware, async (req: AuthRequest, res) => {
-  const riderId = req.query.riderId as string;
-
-  if (!riderId) {
-    return res.status(400).json({ error: "Missing riderId" });
-  }
-
-  try {
-    const rides = await rideModel.getActiveRidesByRiderId(riderId);
-    res.json({ rides });
-  } catch (error) {
-    console.error("Get active rides error:", error);
-    res.status(500).json({ error: "Failed to get active rides" });
   }
 });
 
