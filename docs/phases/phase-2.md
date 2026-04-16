@@ -134,9 +134,11 @@ Phase 2 focuses on solving real rider issues that affect reliability in actual r
   - Map-based rendezvous point suggestion
   - Location privacy controls
 - **Files to Create:**
-  - Update `store/index.ts` for location sharing state
-  - Update `components/RiderMap.tsx` for rendezvous points
-- **Dependencies:** GPS location, map integration
+  - `lib/locationSharing.ts` - Location sharing logic ✅
+  - `lib/hooks/useLocationSharing.ts` - React hook for location sharing ✅
+  - `components/LocationRequestButton.tsx` - Location request UI ✅
+- **Dependencies:** GPS location, geofencing
+- **Status:** 🔄 In Progress
 
 ### Enhanced Features (7 features)
 
