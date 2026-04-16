@@ -121,10 +121,10 @@ Phase 2 focuses on solving real rider issues that affect reliability in actual r
   - Save calibration profiles per helmet
   - Helmet-specific audio profiles
 - **Files to Create:**
-  - `lib/helmetCalibration.ts` - Helmet audio calibration
-  - `app/calibration/page.tsx` - Calibration wizard page
-  - Update `lib/voiceActivityDetection.ts` for calibration profiles
-- **Dependencies:** Web Audio API, local storage
+  - `lib/helmetCalibration.ts` - Helmet audio calibration ✅
+  - `lib/hooks/useHelmetCalibration.ts` - React hook for calibration ✅
+- **Dependencies:** Web Audio API
+- **Status:** 🔄 In Progress
 
 #### 8. Location Sharing When Separated
 - **Description:** "Where are you?" feature for separated riders
