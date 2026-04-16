@@ -27,7 +27,14 @@ export async function createUser(
 
 export async function getUserByEmail(email: string): Promise<User | null> {
   const stmt = db.prepare(`
-    SELECT * FROM users WHERE email = ?
+    SELECT
+      user_id as userId,
+      email,
+      password,
+      name,
+      created_at as createdAt,
+      updated_at as updatedAt
+    FROM users WHERE email = ?
   `);
   const user = stmt.get(email) as User | undefined;
 
@@ -36,7 +43,14 @@ export async function getUserByEmail(email: string): Promise<User | null> {
 
 export async function getUserById(userId: string): Promise<User | null> {
   const stmt = db.prepare(`
-    SELECT * FROM users WHERE user_id = ?
+    SELECT
+      user_id as userId,
+      email,
+      password,
+      name,
+      created_at as createdAt,
+      updated_at as updatedAt
+    FROM users WHERE user_id = ?
   `);
   const user = stmt.get(userId) as User | undefined;
 

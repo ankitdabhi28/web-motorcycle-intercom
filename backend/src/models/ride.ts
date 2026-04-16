@@ -26,7 +26,13 @@ export async function createRide(
 
 export async function getRideByCode(rideCode: string): Promise<Ride | null> {
   const stmt = db.prepare(`
-    SELECT * FROM rides WHERE ride_code = ?
+    SELECT
+      ride_id as rideId,
+      ride_code as rideCode,
+      name,
+      created_by as createdBy,
+      created_at as createdAt
+    FROM rides WHERE ride_code = ?
   `);
   const ride = stmt.get(rideCode) as Ride | undefined;
 
@@ -35,7 +41,13 @@ export async function getRideByCode(rideCode: string): Promise<Ride | null> {
 
 export async function getRideById(rideId: string): Promise<Ride | null> {
   const stmt = db.prepare(`
-    SELECT * FROM rides WHERE ride_id = ?
+    SELECT
+      ride_id as rideId,
+      ride_code as rideCode,
+      name,
+      created_by as createdBy,
+      created_at as createdAt
+    FROM rides WHERE ride_id = ?
   `);
   const ride = stmt.get(rideId) as Ride | undefined;
 
@@ -44,7 +56,13 @@ export async function getRideById(rideId: string): Promise<Ride | null> {
 
 export async function getAllRides(): Promise<Ride[]> {
   const stmt = db.prepare(`
-    SELECT * FROM rides ORDER BY created_at DESC
+    SELECT
+      ride_id as rideId,
+      ride_code as rideCode,
+      name,
+      created_by as createdBy,
+      created_at as createdAt
+    FROM rides ORDER BY created_at DESC
   `);
   const rides = stmt.all() as Ride[];
 
