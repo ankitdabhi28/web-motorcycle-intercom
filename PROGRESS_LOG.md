@@ -29,6 +29,41 @@
 
 ---
 
+## 🆕 Infrastructure Improvements
+
+### Authentication Persistence (April 16, 2026)
+**Status:** ✅ Complete
+
+**Implemented Features:**
+- localStorage-based token persistence across page reloads
+- Automatic user data restoration on app initialization
+- Active ride restoration via API check
+- Token refresh mechanism with axios interceptor
+- Loading spinner during auth initialization
+- Graceful redirect to login on auth failure
+
+**Backend Changes:**
+- GET `/api/auth/me` - Fetch current user data
+- GET `/api/rides/active` - Fetch active rides for a rider
+- POST `/api/auth/refresh` - Token refresh endpoint
+- `getActiveRidesByRiderId` - Ride model function
+
+**Frontend Changes:**
+- `lib/auth.ts` - Token management utilities
+- `store/index.ts` - Auth persistence logic (initializeAuth, restoreRideState)
+- `components/LoadingSpinner.tsx` - Loading UI component
+- `components/AuthProvider.tsx` - App wrapper for auth initialization
+- `app/layout.tsx` - Wrapped with AuthProvider
+- `app/dashboard/page.tsx` - Updated for auth loading state
+
+**Benefits:**
+- Users stay logged in after page refresh
+- Active rides restored automatically
+- Better UX with seamless session restoration
+- Token refresh prevents session expiration
+
+---
+
 ## 🚀 Development Phases
 
 **Phase documentation has been split into separate files for better tracking.**
@@ -77,11 +112,7 @@ See [docs/phases/phase-3.md](./docs/phases/phase-3.md) for detailed roadmap
    - Status: Intentional for MVP
    - Resolution: Implement full Leaflet integration in next session
 
-2. **No Database:** Currently using in-memory state only
-   - Status: Intentional for MVP
-   - Resolution: Add PostgreSQL in next session
-
-3. **Geolocation Permission:** Browser may request location permission
+2. **Geolocation Permission:** Browser may request location permission
    - Status: Expected behavior
    - Resolution: User must grant permission for GPS tracking
 
@@ -93,10 +124,12 @@ See [docs/phases/phase-3.md](./docs/phases/phase-3.md) for detailed roadmap
 - See [docs/phases/](./docs/phases/) for detailed phase information
 - Phase 2 focuses on real-world riding conditions (wind noise, coverage drops, battery, glove controls)
 - Phase 3 contains advanced features, testing, and convenience enhancements
-- **Database Setup Required:**
-  - PostgreSQL must be installed and running
-  - Database 'motorcycle_intercom' must be created
-  - Update backend/.env with correct database credentials
+- **Database:** Using SQLite for development (file-based, no installation required)
+  - Database file: `backend/motorcycle_intercom.db` (auto-created on first run)
+  - For production, can migrate to PostgreSQL (see docs/DATABASE_SETUP.md)
+- **Authentication:** Persistent auth with localStorage and token refresh
+  - Users stay logged in after page refresh
+  - Active rides restored automatically via API check
 
 ---
 
