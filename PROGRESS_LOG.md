@@ -64,6 +64,29 @@
 - API-driven data (no user data in localStorage)
 - Single API call for user and ride data
 
+### Dedicated Ride Route (April 16, 2026)
+**Status:** ✅ Complete
+
+**Implemented Features:**
+- Created `/ride/[rideCode]` route for active riding sessions
+- Moved riding interface from dashboard to dedicated ride route
+- Dashboard now only shows start/join options (pre-ride state)
+- URL-based ride state (rideCode in URL parameter)
+- Automatic redirect to ride route on auth init if active ride exists
+
+**Route Changes:**
+- `/dashboard` - Pre-ride state (start/join options only)
+- `/ride/[rideCode]` - Active riding session with full interface
+- Redirect to `/ride/[rideCode]` when starting/joining a ride
+- Redirect to `/ride/[rideCode]` on auth initialization if active ride exists
+
+**Benefits:**
+- Clear separation of concerns (dashboard vs ride)
+- URL-based ride state (rideCode in URL)
+- Better UX with dedicated riding route
+- Ride state persists via URL parameter
+- Cleaner architecture with separate routes for different states
+
 ---
 
 ## 🚀 Development Phases
