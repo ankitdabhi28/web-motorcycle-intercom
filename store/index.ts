@@ -1,14 +1,28 @@
 import { create } from "zustand";
 import axios from "axios";
 import { RideState, Rider, MeshNeighbor } from "@/lib/types";
+import {
+  setToken,
+  getToken,
+  removeToken,
+  fetchCurrentUser,
+  fetchActiveRides,
+} from "@/lib/auth";
 
 interface StoreState extends RideState {
   // Auth actions
   token: string | null;
   user: { userId: string; email: string; name: string } | null;
+  isAuthLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, name: string) => Promise<void>;
   logout: () => void;
+  initializeAuth: () => Promise<void>;
+  setAuthData: (
+    token: string,
+    user: { userId: string; email: string; name: string },
+  ) => void;
+  restoreRideState: (rideCode: string, rideId: string) => void;
 
   // Ride actions
   startRide: (rideName: string) => Promise<{ rideCode: string }>;
@@ -38,6 +52,7 @@ export const useRideStore = create<StoreState>((set, get) => ({
   // Initial state
   token: null,
   user: null,
+  isAuthLoading: true,
   rideId: null,
   rideCode: null,
   isLeader: false,
@@ -66,6 +81,7 @@ export const useRideStore = create<StoreState>((set, get) => ({
       password,
     });
     const data = response.data;
+    setToken(data.token);
     set({
       token: data.token,
       user: { userId: data.userId, email: data.email, name: data.name },
@@ -81,6 +97,7 @@ export const useRideStore = create<StoreState>((set, get) => ({
       name,
     });
     const data = response.data;
+    setToken(data.token);
     set({
       token: data.token,
       user: { userId: data.userId, email: data.email, name: data.name },
@@ -88,6 +105,7 @@ export const useRideStore = create<StoreState>((set, get) => ({
   },
 
   logout: () => {
+    removeToken();
     set({
       token: null,
       user: null,
@@ -96,6 +114,42 @@ export const useRideStore = create<StoreState>((set, get) => ({
       isLeader: false,
       isAudioRunning: false,
     });
+  },
+
+  initializeAuth: async () => {
+    const token = getToken();
+    if (!token) {
+      set({ isAuthLoading: false });
+      return;
+    }
+
+    try {
+      const user = await fetchCurrentUser(token);
+      set({ token, user, isAuthLoading: false });
+
+      // Check for active rides
+      const riderId = `rider-${user.userId}`; // Assuming riderId pattern
+      const activeRides = await fetchActiveRides(token, riderId);
+
+      if (activeRides.length > 0) {
+        // Restore the most recent active ride
+        const latestRide = activeRides[0];
+        get().restoreRideState(latestRide.rideCode, latestRide.rideId);
+      }
+    } catch (error) {
+      console.error("Auth initialization error:", error);
+      removeToken();
+      set({ token: null, user: null, isAuthLoading: false });
+    }
+  },
+
+  setAuthData: (token, user) => {
+    setToken(token);
+    set({ token, user });
+  },
+
+  restoreRideState: (rideCode, rideId) => {
+    set({ rideCode, rideId, isAudioRunning: true });
   },
 
   // Methods

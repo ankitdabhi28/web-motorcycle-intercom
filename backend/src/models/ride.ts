@@ -108,3 +108,22 @@ export async function getRideParticipants(rideId: string): Promise<string[]> {
 
   return participants.map((row) => row.rider_id);
 }
+
+export async function getActiveRidesByRiderId(
+  riderId: string,
+): Promise<Ride[]> {
+  const stmt = db.prepare(`
+    SELECT
+      r.ride_id as rideId,
+      r.ride_code as rideCode,
+      r.name,
+      r.created_by as createdBy,
+      r.created_at as createdAt
+    FROM rides r
+    INNER JOIN ride_participants rp ON r.ride_id = rp.ride_id
+    WHERE rp.rider_id = ?
+    ORDER BY r.created_at DESC
+  `);
+  const rides = stmt.all(riderId) as Ride[];
+  return rides;
+}

@@ -105,6 +105,25 @@ app.post("/api/auth/login", async (req, res) => {
   }
 });
 
+// Refresh token
+app.post("/api/auth/refresh", async (req, res) => {
+  const { token } = req.body;
+
+  if (!token) {
+    return res.status(400).json({ error: "Missing token" });
+  }
+
+  try {
+    // Verify token and return new token
+    // For now, just return the same token (JWT tokens are stateless)
+    // In production, you might want to implement a refresh token strategy
+    res.json({ token });
+  } catch (error) {
+    console.error("Refresh token error:", error);
+    res.status(401).json({ error: "Invalid token" });
+  }
+});
+
 // Update profile
 app.put("/api/auth/profile", authMiddleware, async (req: AuthRequest, res) => {
   const { name } = req.body;
@@ -123,6 +142,22 @@ app.put("/api/auth/profile", authMiddleware, async (req: AuthRequest, res) => {
   }
 });
 
+// Get current user
+app.get("/api/auth/me", authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    const user = await userModel.getUserById(req.user!.userId);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.json({ userId: user.userId, email: user.email, name: user.name });
+  } catch (error) {
+    console.error("Get current user error:", error);
+    res.status(500).json({ error: "Failed to get user" });
+  }
+});
+
 // List all rides (for debugging)
 app.get("/api/rides", authMiddleware, async (req: AuthRequest, res) => {
   try {
@@ -131,6 +166,23 @@ app.get("/api/rides", authMiddleware, async (req: AuthRequest, res) => {
   } catch (error) {
     console.error("List rides error:", error);
     res.status(500).json({ error: "Failed to list rides" });
+  }
+});
+
+// Get active rides for a rider
+app.get("/api/rides/active", authMiddleware, async (req: AuthRequest, res) => {
+  const riderId = req.query.riderId as string;
+
+  if (!riderId) {
+    return res.status(400).json({ error: "Missing riderId" });
+  }
+
+  try {
+    const rides = await rideModel.getActiveRidesByRiderId(riderId);
+    res.json({ rides });
+  } catch (error) {
+    console.error("Get active rides error:", error);
+    res.status(500).json({ error: "Failed to get active rides" });
   }
 });
 

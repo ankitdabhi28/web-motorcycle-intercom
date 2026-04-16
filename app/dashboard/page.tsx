@@ -18,6 +18,7 @@ export default function Dashboard() {
   const router = useRouter();
   const token = useRideStore((state) => state.token);
   const user = useRideStore((state) => state.user);
+  const isAuthLoading = useRideStore((state) => state.isAuthLoading);
   const rideCode = useRideStore((state) => state.rideCode);
   const localRider = useRideStore((state) => state.localRider);
   const remoteRiders = useRideStore((state) => state.remoteRiders);
@@ -31,12 +32,12 @@ export default function Dashboard() {
   useGeofencing(500); // 500 meter threshold for automatic connection
   useMeshRouting(); // Enable multi-hop mesh routing
 
-  // Redirect to login if not authenticated
+  // Redirect to login if not authenticated (after auth loading is complete)
   useEffect(() => {
-    if (!token || !user) {
+    if (!isAuthLoading && (!token || !user)) {
       router.push("/login");
     }
-  }, [token, user, router]);
+  }, [isAuthLoading, token, user, router]);
 
   useEffect(() => {
     // Initialize local rider with authenticated user info
