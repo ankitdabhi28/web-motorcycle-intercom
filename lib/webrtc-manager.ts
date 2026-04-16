@@ -378,6 +378,72 @@ class WebRTCManager extends EventEmitter {
   getPeerIds(): string[] {
     return Array.from(this.peerConnections.keys());
   }
+
+  /**
+   * Update audio constraints based on speed-adaptive mode
+   */
+  async updateAudioConstraints(
+    noiseSuppression: "low" | "medium" | "aggressive",
+    echoCancellation: boolean,
+    volume: number,
+  ): Promise<void> {
+    if (!this.localStream) {
+      console.warn("[WebRTC] No local stream to update");
+      return;
+    }
+
+    // Map noise suppression levels to Web Audio API values
+    const noiseSuppressionValue =
+      noiseSuppression === "aggressive"
+        ? 1.0
+        : noiseSuppression === "medium"
+          ? 0.5
+          : 0.2;
+
+    // Update audio tracks with new constraints
+    const audioTracks = this.localStream.getAudioTracks();
+    for (const track of audioTracks) {
+      try {
+        // Note: Not all browsers support updating constraints after stream is created
+        // This is a best-effort approach
+        if ("applyConstraints" in track) {
+          await (track as any).applyConstraints({
+            echoCancellation,
+            noiseSuppression: noiseSuppressionValue > 0.3,
+            autoGainControl: true,
+          });
+          console.log("[WebRTC] Audio constraints updated:", {
+            noiseSuppression,
+            echoCancellation,
+          });
+        }
+      } catch (error) {
+        console.error("[WebRTC] Failed to update audio constraints:", error);
+      }
+    }
+
+    // Apply volume gain to all peer connections
+    this.peerConnections.forEach((connection) => {
+      connection.getReceivers().forEach((receiver) => {
+        if (receiver.track && receiver.track.kind === "audio") {
+          const stream = new MediaStream([receiver.track]);
+          const audioContext = new AudioContext();
+          const source = audioContext.createMediaStreamSource(stream);
+          const gainNode = audioContext.createGain();
+          gainNode.gain.value = volume;
+
+          source.connect(gainNode);
+          gainNode.connect(audioContext.destination);
+        }
+      });
+    });
+
+    this.emit("audioConstraintsUpdated", {
+      noiseSuppression,
+      echoCancellation,
+      volume,
+    });
+  }
 }
 
 export const webrtcManager = new WebRTCManager();
