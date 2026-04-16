@@ -35,21 +35,21 @@
 **Status:** ✅ Complete
 
 **Implemented Features:**
-- localStorage-based token persistence across page reloads
-- Automatic user data restoration on app initialization
-- Active ride restoration via API check
+- localStorage-based token persistence across page reloads (token only)
+- API-driven data retrieval (user and ride data from API)
+- Active ride restoration via single /api/auth/me call
 - Token refresh mechanism with axios interceptor
 - Loading spinner during auth initialization
 - Graceful redirect to login on auth failure
 
 **Backend Changes:**
-- GET `/api/auth/me` - Fetch current user data
-- GET `/api/rides/active` - Fetch active rides for a rider
+- GET `/api/auth/me` - Fetch current user data with active ride info
+  - Returns: userId, email, name, activeRide (rideId, rideCode, name, isLeader, participants)
 - POST `/api/auth/refresh` - Token refresh endpoint
-- `getActiveRidesByRiderId` - Ride model function
+- `getActiveRidesByRiderId` - Ride model function (used by /api/auth/me)
 
 **Frontend Changes:**
-- `lib/auth.ts` - Token management utilities
+- `lib/auth.ts` - Token management utilities (token only, no user data)
 - `store/index.ts` - Auth persistence logic (initializeAuth, restoreRideState)
 - `components/LoadingSpinner.tsx` - Loading UI component
 - `components/AuthProvider.tsx` - App wrapper for auth initialization
@@ -61,6 +61,8 @@
 - Active rides restored automatically
 - Better UX with seamless session restoration
 - Token refresh prevents session expiration
+- API-driven data (no user data in localStorage)
+- Single API call for user and ride data
 
 ---
 
@@ -127,9 +129,11 @@ See [docs/phases/phase-3.md](./docs/phases/phase-3.md) for detailed roadmap
 - **Database:** Using SQLite for development (file-based, no installation required)
   - Database file: `backend/motorcycle_intercom.db` (auto-created on first run)
   - For production, can migrate to PostgreSQL (see docs/DATABASE_SETUP.md)
-- **Authentication:** Persistent auth with localStorage and token refresh
-  - Users stay logged in after page refresh
-  - Active rides restored automatically via API check
+- **Authentication:** Persistent auth with localStorage (token only) and API-driven data
+  - Only access token stored in localStorage
+  - User data and ride state fetched from API using token
+  - Active rides restored automatically via /api/auth/me
+  - Single API call returns user and active ride information
 
 ---
 
