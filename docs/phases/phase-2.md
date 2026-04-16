@@ -108,9 +108,10 @@ Phase 2 focuses on solving real rider issues that affect reliability in actual r
   - "Hey Intercom, where is [rider name]?"
   - Web Speech API integration
 - **Files to Create:**
-  - `lib/voiceCommands.ts` - Voice command recognition
-  - `lib/hooks/useVoiceCommands.ts` - React hook for voice commands
-- **Dependencies:** Web Speech API, ride leader controls
+  - `lib/voiceCommands.ts` - Voice command recognition ✅
+  - `lib/hooks/useVoiceCommands.ts` - React hook for voice commands ✅
+- **Dependencies:** Web Speech API
+- **Status:** 🔄 In Progress
 
 #### 7. Helmet Audio Calibration
 - **Description:** Setup wizard for different helmet speakers/mics
