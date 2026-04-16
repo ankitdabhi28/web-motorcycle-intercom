@@ -95,9 +95,10 @@ Phase 2 focuses on solving real rider issues that affect reliability in actual r
   - User notification of reconnection status
   - Connection quality monitoring
 - **Files to Create:**
-  - Update `lib/socket-client.ts` for smart reconnection
-  - Update `lib/webrtc-manager.ts` for peer reconnection
-- **Dependencies:** Socket.io, WebRTC manager
+  - `lib/autoReconnection.ts` - Auto-reconnection logic ✅
+  - `lib/hooks/useAutoReconnection.ts` - React hook for reconnection management ✅
+- **Dependencies:** WebRTC manager, mesh routing
+- **Status:** 🔄 In Progress
 
 #### 6. Voice Commands
 - **Description:** Glove-friendly voice control
