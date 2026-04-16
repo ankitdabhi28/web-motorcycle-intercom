@@ -26,15 +26,15 @@ A real-time motorcycle intercom system built with Next.js, WebRTC, and Socket.io
 ### Backend
 - **Express**: Node.js web framework
 - **Socket.io**: WebSocket server for real-time events
-- **PostgreSQL**: Relational database
+- **SQLite**: Database (development) / PostgreSQL (production)
 - **JWT**: Authentication
 - **WebRTC**: Peer-to-peer audio
 
 ## Prerequisites
 
 - Node.js 18+ and npm/yarn
-- PostgreSQL 12+ (for database features)
 - Modern web browser with WebRTC support
+- PostgreSQL 12+ (for production deployment only)
 
 ## Quick Start
 
@@ -73,18 +73,24 @@ cd ..
 
 Create `backend/.env`:
 ```env
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=motorcycle_intercom
-DB_USER=intercom_user
-DB_PASSWORD=your_secure_password
-JWT_SECRET=your_jwt_secret
+# Database - SQLite (file-based, no installation needed)
+# Database file will be created at: backend/motorcycle_intercom.db
+
+# JWT Secret (change this in production)
+JWT_SECRET=your_jwt_secret_key_change_this_in_production
+
+# Server Port
 PORT=3001
+
+# Frontend URL for CORS
+FRONTEND_URL=http://localhost:3000
 ```
 
 **3. Setup Database (Optional)**
 
-See [docs/DATABASE_SETUP.md](docs/DATABASE_SETUP.md) for detailed instructions.
+The database will be automatically created as `motorcycle_intercom.db` in the backend directory on first run.
+
+For production deployment with PostgreSQL, see [docs/DATABASE_SETUP.md](docs/DATABASE_SETUP.md).
 
 **4. Start Servers**
 
@@ -216,18 +222,21 @@ Visit `/audio-test` to test WebRTC peer-to-peer audio connections without joinin
 
 **Backend (.env):**
 ```env
-# Database
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=motorcycle_intercom
-DB_USER=intercom_user
-DB_PASSWORD=your_password
+# Database (Development: SQLite, Production: PostgreSQL)
+# For development, SQLite is used automatically (no config needed)
+# For production, set PostgreSQL credentials:
+# DB_HOST=localhost
+# DB_PORT=5432
+# DB_NAME=motorcycle_intercom
+# DB_USER=intercom_user
+# DB_PASSWORD=your_password
 
 # JWT
 JWT_SECRET=your_jwt_secret_key
 
 # Server
 PORT=3001
+FRONTEND_URL=http://localhost:3000
 ```
 
 ### Geofencing Settings
@@ -244,8 +253,8 @@ Configurable in `lib/hooks/useMeshRouting.ts`
 ## Troubleshooting
 
 ### Database Connection Issues
-- Ensure PostgreSQL is running
-- Verify credentials in backend/.env
+- **Development (SQLite):** Database file is auto-created at `backend/motorcycle_intercom.db`
+- **Production (PostgreSQL):** Ensure PostgreSQL is running and credentials in backend/.env are correct
 - Check database exists: `sudo -u postgres psql -l`
 
 ### WebRTC Not Working

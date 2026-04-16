@@ -1,4 +1,4 @@
-import pool from "../db";
+import db from "../db";
 
 export interface User {
   userId: string;
@@ -13,54 +13,46 @@ export async function createUser(
   userId: string,
   email: string,
   password: string,
-  name: string
+  name: string,
 ): Promise<User> {
-  const query = `
+  const stmt = db.prepare(`
     INSERT INTO users (user_id, email, password, name)
-    VALUES ($1, $2, $3, $4)
-    RETURNING *
-  `;
-  const values = [userId, email, password, name];
+    VALUES (?, ?, ?, ?)
+  `);
+  stmt.run(userId, email, password, name);
 
-  const result = await pool.query(query, values);
-  return result.rows[0];
+  const user = await getUserById(userId);
+  return user!;
 }
 
 export async function getUserByEmail(email: string): Promise<User | null> {
-  const query = `
-    SELECT * FROM users WHERE email = $1
-  `;
-  const result = await pool.query(query, [email]);
+  const stmt = db.prepare(`
+    SELECT * FROM users WHERE email = ?
+  `);
+  const user = stmt.get(email) as User | undefined;
 
-  if (result.rows.length === 0) {
-    return null;
-  }
-
-  return result.rows[0];
+  return user || null;
 }
 
 export async function getUserById(userId: string): Promise<User | null> {
-  const query = `
-    SELECT * FROM users WHERE user_id = $1
-  `;
-  const result = await pool.query(query, [userId]);
+  const stmt = db.prepare(`
+    SELECT * FROM users WHERE user_id = ?
+  `);
+  const user = stmt.get(userId) as User | undefined;
 
-  if (result.rows.length === 0) {
-    return null;
-  }
-
-  return result.rows[0];
+  return user || null;
 }
 
-export async function updateUser(userId: string, updates: Partial<{ name: string }>): Promise<User | null> {
+export async function updateUser(
+  userId: string,
+  updates: Partial<{ name: string }>,
+): Promise<User | null> {
   const fields: string[] = [];
   const values: any[] = [];
-  let paramCount = 1;
 
   if (updates.name !== undefined) {
-    fields.push(`name = $${paramCount}`);
+    fields.push(`name = ?`);
     values.push(updates.name);
-    paramCount++;
   }
 
   if (fields.length === 0) {
@@ -73,10 +65,11 @@ export async function updateUser(userId: string, updates: Partial<{ name: string
   const query = `
     UPDATE users
     SET ${fields.join(", ")}
-    WHERE user_id = $${paramCount}
-    RETURNING *
+    WHERE user_id = ?
   `;
 
-  const result = await pool.query(query, values);
-  return result.rows[0] || null;
+  const stmt = db.prepare(query);
+  stmt.run(...values);
+
+  return getUserById(userId);
 }
