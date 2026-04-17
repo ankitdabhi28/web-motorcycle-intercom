@@ -219,6 +219,48 @@ app.post("/api/rides", authMiddleware, async (req: AuthRequest, res) => {
   }
 });
 
+// Get user's ride history
+app.get("/api/rides/my", authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    // Disable old rides first
+    await rideModel.disableOldRides();
+
+    const rides = await rideModel.getRidesByUserId(req.user!.userId);
+    res.json({ rides });
+  } catch (error) {
+    console.error("Get ride history error:", error);
+    res.status(500).json({ error: "Failed to get ride history" });
+  }
+});
+
+// Update ride activity
+app.post(
+  "/api/rides/:rideCode/activity",
+  authMiddleware,
+  async (req: AuthRequest, res) => {
+    const { rideCode } = req.params;
+    const code = Array.isArray(rideCode) ? rideCode[0] : rideCode;
+
+    try {
+      const ride = await rideModel.getRideByCode(code);
+
+      if (!ride) {
+        return res.status(404).json({ error: "Ride not found" });
+      }
+
+      if (ride.status === "disabled") {
+        return res.status(403).json({ error: "Ride is disabled" });
+      }
+
+      await rideModel.updateRideActivity(ride.rideId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Update ride activity error:", error);
+      res.status(500).json({ error: "Failed to update ride activity" });
+    }
+  },
+);
+
 // Get ride details
 app.get(
   "/api/rides/:rideCode",

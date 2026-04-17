@@ -22,6 +22,8 @@ export async function initializeDatabase() {
         name TEXT NOT NULL,
         created_by TEXT NOT NULL,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        last_active_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        status TEXT DEFAULT 'active',
         FOREIGN KEY (created_by) REFERENCES users(user_id) ON DELETE CASCADE
       )
     `);

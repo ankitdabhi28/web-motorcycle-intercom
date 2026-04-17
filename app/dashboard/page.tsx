@@ -72,6 +72,12 @@ export default function Dashboard() {
               {user?.name || "Rider"}
             </span>
             <button
+              onClick={() => router.push("/rides")}
+              className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition font-medium"
+            >
+              My Rides
+            </button>
+            <button
               onClick={handleLogout}
               className="px-4 py-2 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition font-medium"
             >

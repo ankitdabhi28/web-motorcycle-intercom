@@ -7,6 +7,7 @@ import { useGeolocation } from "@/lib/hooks/useGeolocation";
 import { useGeofencing } from "@/lib/hooks/useGeofencing";
 import { useMeshRouting } from "@/lib/hooks/useMeshRouting";
 import { useRouter, useParams } from "next/navigation";
+import axios from "axios";
 
 const RiderList = lazy(() => import("@/components/RiderList"));
 const RiderMap = lazy(() => import("@/components/RiderMap"));
@@ -116,8 +117,30 @@ export default function RidePage() {
       });
     }, 5000); // Every 5 seconds
 
-    return () => clearInterval(helloInterval);
-  }, [rideCode, localRider, isConnected]);
+    // Update ride activity periodically
+    const activityInterval = setInterval(async () => {
+      try {
+        const backendUrl =
+          process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001";
+        await axios.post(
+          `${backendUrl}/api/rides/${rideCode}/activity`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+      } catch (error) {
+        console.error("Failed to update ride activity:", error);
+      }
+    }, 60000); // Every minute
+
+    return () => {
+      clearInterval(helloInterval);
+      clearInterval(activityInterval);
+    };
+  }, [rideCode, localRider, isConnected, token]);
 
   const handleLeaveRide = async () => {
     try {
@@ -135,14 +158,20 @@ export default function RidePage() {
     <div className="h-screen flex flex-col bg-gray-50">
       {/* Header */}
       <header className="bg-white shadow px-4 sm:px-6 py-4">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
           <div>
             <h1 className="text-xl sm:text-2xl font-bold">Ride: {rideCode}</h1>
             <p className="text-gray-600 text-sm">
               Riders: {Object.keys(remoteRiders).length + 1}
             </p>
           </div>
-          <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            <button
+              onClick={() => router.push("/rides")}
+              className="text-sm text-gray-600 hover:text-gray-900 px-2 py-1"
+            >
+              My Rides
+            </button>
             <button
               onClick={() => router.push("/audio-test")}
               className="text-blue-500 hover:underline text-sm sm:text-base"
@@ -156,20 +185,20 @@ export default function RidePage() {
               Settings
             </button>
             <div className="text-right hidden sm:block">
-              <p className="font-semibold">{localRider.name}</p>
-              <p className="text-sm text-gray-500">
+              <p className="font-semibold text-sm">{localRider.name}</p>
+              <p className="text-xs text-gray-500">
                 {isAudioRunning ? "🔴 Live" : "⚫ Offline"}
               </p>
             </div>
             <button
               onClick={handleLeaveRide}
-              className="px-3 sm:px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition text-sm"
+              className="px-3 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition text-sm whitespace-nowrap"
             >
               Leave Ride
             </button>
             <button
               onClick={logout}
-              className="px-3 sm:px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition text-sm"
+              className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition text-sm whitespace-nowrap"
             >
               Logout
             </button>
@@ -179,18 +208,23 @@ export default function RidePage() {
 
       {/* Error message */}
       {error && (
-        <div className="bg-red-100 text-red-700 px-6 py-3">
-          {error}
-          <button onClick={() => setError(null)} className="ml-4 underline">
-            Dismiss
-          </button>
+        <div className="bg-red-100 text-red-700 px-4 sm:px-6 py-3">
+          <div className="flex items-center justify-between">
+            <span className="text-sm">{error}</span>
+            <button
+              onClick={() => setError(null)}
+              className="ml-4 underline text-sm"
+            >
+              Dismiss
+            </button>
+          </div>
         </div>
       )}
 
       {/* Main content */}
       <div className="flex-1 flex flex-col lg:flex-row gap-4 p-4 overflow-hidden">
         {/* Map (left/top) */}
-        <div className="flex-1 lg:flex-[2] bg-white rounded-lg shadow overflow-hidden min-h-[400px] lg:min-h-0">
+        <div className="flex-1 lg:flex-[2] bg-white rounded-lg shadow overflow-hidden min-h-[300px] sm:min-h-[400px] lg:min-h-0">
           <Suspense
             fallback={
               <div className="flex items-center justify-center h-full">
@@ -227,7 +261,7 @@ export default function RidePage() {
           </Suspense>
 
           {/* Rider list */}
-          <div className="flex-1 bg-white rounded-lg shadow overflow-hidden min-h-[300px]">
+          <div className="flex-1 bg-white rounded-lg shadow overflow-hidden min-h-[200px] sm:min-h-[300px]">
             <Suspense
               fallback={
                 <div className="flex items-center justify-center h-full">
