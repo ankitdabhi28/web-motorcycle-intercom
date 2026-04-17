@@ -87,6 +87,36 @@
 - Ride state persists via URL parameter
 - Cleaner architecture with separate routes for different states
 
+### UI/UX Improvements (April 17, 2026)
+**Status:** ✅ Complete
+
+**Fixed Issues:**
+- Fixed 404 error on `/register` route (removed references from home page)
+- Fixed localStorage usage in settings page (now uses token from store)
+- Fixed back button on audio-test page to point to dashboard
+- Removed duplicate back buttons
+
+**Page Redesigns:**
+- **Home page**: Updated all CTAs to point to login instead of non-existent register route
+- **Login page**: Complete redesign with gradient background, better form styling, loading spinner, feature icons
+- **Dashboard**: Complete redesign with header, action cards, feature showcase, better visual hierarchy
+- **Profile page**: Complete redesign with header, profile card, account info section, better form styling
+- **Settings page**: Complete redesign with gradient backgrounds, better checkbox styling, improved connection info cards
+- **Audio test page**: Added consistent header, improved button styling
+
+**Responsive Design:**
+- All pages now use responsive breakpoints (sm, md, lg)
+- Better mobile layout with proper padding and spacing
+- Improved touch targets for mobile devices
+- Consistent header design across all pages
+
+**Design System:**
+- Consistent gradient background (blue-indigo-purple)
+- Consistent header design with back button
+- Consistent card styling with rounded-2xl and shadows
+- Consistent button styling with focus states
+- Consistent error/success message styling
+
 ---
 
 ## 🚀 Development Phases
