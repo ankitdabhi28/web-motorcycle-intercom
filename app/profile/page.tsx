@@ -68,98 +68,133 @@ export default function ProfilePage() {
 
   if (!user) {
     return (
-      <div className="h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-2xl mx-auto">
-        <div className="bg-white rounded-lg shadow p-6">
-          <h1 className="text-2xl font-bold mb-6">Profile Settings</h1>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => router.push("/dashboard")}
+              className="text-gray-600 hover:text-gray-900 transition"
+            >
+              ←
+            </button>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+              Profile Settings
+            </h1>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="px-4 py-2 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition font-medium"
+          >
+            Logout
+          </button>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        {/* Profile Card */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 mb-6">
+          <div className="flex items-center gap-4 mb-8">
+            <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center">
+              <span className="text-4xl">👤</span>
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">{user.name}</h2>
+              <p className="text-gray-600">{user.email}</p>
+            </div>
+          </div>
 
           {message && (
             <div
-              className={`mb-4 p-3 rounded ${
+              className={`mb-6 p-4 rounded-lg flex items-center ${
                 message.type === "success"
-                  ? "bg-green-100 text-green-700"
-                  : "bg-red-100 text-red-700"
+                  ? "bg-green-50 border border-green-200 text-green-700"
+                  : "bg-red-50 border border-red-200 text-red-700"
               }`}
             >
-              {message.text}
+              <span className="mr-2">
+                {message.type === "success" ? "✅" : "⚠️"}
+              </span>
+              <span className="text-sm">{message.text}</span>
             </div>
           )}
 
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email
-              </label>
-              <input
-                type="email"
-                value={user.email}
-                disabled
-                className="w-full px-3 py-2 border rounded-lg bg-gray-100 cursor-not-allowed"
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                Email cannot be changed
-              </p>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Display Name
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                 placeholder="Your display name"
               />
+              <p className="text-xs text-gray-500 mt-1">
+                This is how other riders will see you
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Email Address
+              </label>
+              <input
+                type="email"
+                value={user.email}
+                disabled
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Email cannot be changed
+              </p>
             </div>
 
             <div className="pt-4 flex gap-3">
               <button
                 onClick={handleSave}
                 disabled={loading}
-                className="flex-1 bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition disabled:opacity-50"
+                className="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition disabled:opacity-50 disabled:cursor-not-allowed font-medium"
               >
                 {loading ? "Saving..." : "Save Changes"}
               </button>
-              <button
-                onClick={handleLogout}
-                className="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-
-          <div className="mt-8 pt-6 border-t">
-            <h2 className="text-lg font-semibold mb-4">Account Info</h2>
-            <div className="space-y-2 text-sm text-gray-600">
-              <p>
-                <strong>User ID:</strong> {user.userId}
-              </p>
-              <p>
-                <strong>Email:</strong> {user.email}
-              </p>
             </div>
           </div>
         </div>
 
-        <div className="mt-4">
-          <button
-            onClick={() => router.push("/dashboard")}
-            className="text-blue-500 hover:underline"
-          >
-            ← Back to Dashboard
-          </button>
+        {/* Account Info Card */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
+          <h3 className="text-xl font-bold text-gray-900 mb-6">
+            Account Information
+          </h3>
+          <div className="space-y-4">
+            <div className="flex justify-between items-center py-3 border-b border-gray-100">
+              <span className="text-gray-600">User ID</span>
+              <code className="bg-gray-100 px-3 py-1 rounded text-sm">
+                {user.userId}
+              </code>
+            </div>
+            <div className="flex justify-between items-center py-3 border-b border-gray-100">
+              <span className="text-gray-600">Email</span>
+              <span className="text-gray-900">{user.email}</span>
+            </div>
+            <div className="flex justify-between items-center py-3">
+              <span className="text-gray-600">Display Name</span>
+              <span className="text-gray-900">{user.name}</span>
+            </div>
+          </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

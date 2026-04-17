@@ -246,9 +246,29 @@ export default function AudioTestPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">WebRTC Audio Test</h1>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => (window.location.href = "/dashboard")}
+              className="text-gray-600 hover:text-gray-900 transition"
+            >
+              ←
+            </button>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+              Audio Test
+            </h1>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <h2 className="text-3xl font-bold text-gray-900 mb-6">
+          WebRTC Audio Test
+        </h2>
 
         {/* Connection Status */}
         <div className="bg-white rounded-lg shadow p-6 mb-6">
@@ -394,16 +414,7 @@ export default function AudioTestPage() {
             <li>Test audio by speaking and verifying reception</li>
           </ol>
         </div>
-
-        <div className="mt-4">
-          <button
-            onClick={() => (window.location.href = "/dashboard")}
-            className="text-blue-500 hover:underline"
-          >
-            ← Back to Dashboard
-          </button>
-        </div>
-      </div>
+      </main>
     </div>
   );
 }

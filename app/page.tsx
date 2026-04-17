@@ -29,15 +29,9 @@ export default function Home() {
             <div className="flex gap-4">
               <button
                 onClick={() => router.push("/login")}
-                className="px-4 py-2 text-gray-700 hover:text-gray-900 font-medium"
-              >
-                Login
-              </button>
-              <button
-                onClick={() => router.push("/register")}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
               >
-                Sign Up
+                Get Started
               </button>
             </div>
           </div>
@@ -57,16 +51,10 @@ export default function Home() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center px-4">
             <button
-              onClick={() => router.push("/register")}
+              onClick={() => router.push("/login")}
               className="px-6 sm:px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-base sm:text-lg"
             >
               Get Started Free
-            </button>
-            <button
-              onClick={() => router.push("/login")}
-              className="px-6 sm:px-8 py-3 bg-white text-gray-700 rounded-lg hover:bg-gray-50 font-medium text-base sm:text-lg border border-gray-300"
-            >
-              Login
             </button>
           </div>
         </div>
@@ -204,10 +192,10 @@ export default function Home() {
             group communication on every adventure.
           </p>
           <button
-            onClick={() => router.push("/register")}
+            onClick={() => router.push("/login")}
             className="px-8 py-3 bg-white text-blue-600 rounded-lg hover:bg-gray-100 font-medium text-lg"
           >
-            Create Free Account
+            Get Started Now
           </button>
         </div>
       </div>

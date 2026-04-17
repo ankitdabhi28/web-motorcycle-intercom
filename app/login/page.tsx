@@ -28,7 +28,8 @@ export default function LoginPage() {
       }
       router.push("/dashboard");
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : "Authentication failed";
+      const errorMessage =
+        err instanceof Error ? err.message : "Authentication failed";
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -36,79 +37,144 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="h-screen flex items-center justify-center bg-gray-50">
-      <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
-        <h1 className="text-2xl font-bold mb-6 text-center">
-          {isLogin ? "Login" : "Register"}
-        </h1>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-8 sm:p-10">
+        {/* Logo/Icon */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-full mb-4">
+            <span className="text-3xl">🏍️</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+            {isLogin ? "Welcome Back" : "Create Account"}
+          </h1>
+          <p className="text-gray-600 mt-2">
+            {isLogin ? "Sign in to your account" : "Join your riding group"}
+          </p>
+        </div>
 
         {error && (
-          <div className="bg-red-100 text-red-700 p-3 rounded mb-4">
-            {error}
+          <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg mb-6">
+            <div className="flex items-center">
+              <span className="mr-2">⚠️</span>
+              <span className="text-sm">{error}</span>
+            </div>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           {!isLogin && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Name
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Display Name
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                placeholder="Your rider name"
                 required
               />
             </div>
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Email Address
             </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              placeholder="your@email.com"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Password
             </label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              placeholder="••••••••"
               required
+              minLength={6}
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition disabled:opacity-50"
+            className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition disabled:opacity-50 disabled:cursor-not-allowed font-medium"
           >
-            {loading ? "Processing..." : isLogin ? "Login" : "Register"}
+            {loading ? (
+              <span className="flex items-center justify-center">
+                <svg
+                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                Processing...
+              </span>
+            ) : isLogin ? (
+              "Sign In"
+            ) : (
+              "Create Account"
+            )}
           </button>
         </form>
 
-        <div className="mt-4 text-center">
+        <div className="mt-6 text-center">
           <button
             type="button"
-            onClick={() => setIsLogin(!isLogin)}
-            className="text-blue-500 hover:underline"
+            onClick={() => {
+              setIsLogin(!isLogin);
+              setError(null);
+            }}
+            className="text-blue-600 hover:text-blue-700 font-medium transition"
           >
             {isLogin
-              ? "Don't have an account? Register"
-              : "Already have an account? Login"}
+              ? "Don't have an account? Sign up"
+              : "Already have an account? Sign in"}
           </button>
+        </div>
+
+        {/* Features */}
+        <div className="mt-8 pt-6 border-t border-gray-200">
+          <div className="grid grid-cols-3 gap-4 text-center">
+            <div>
+              <div className="text-2xl mb-1">🎤</div>
+              <p className="text-xs text-gray-600">Real-time Audio</p>
+            </div>
+            <div>
+              <div className="text-2xl mb-1">🗺️</div>
+              <p className="text-xs text-gray-600">GPS Tracking</p>
+            </div>
+            <div>
+              <div className="text-2xl mb-1">🔗</div>
+              <p className="text-xs text-gray-600">Mesh Network</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
