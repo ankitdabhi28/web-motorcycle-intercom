@@ -40,6 +40,21 @@ export async function initializeDatabase() {
       )
     `);
 
+    // Migration: Add new columns to rides table if they don't exist
+    try {
+      db.exec(
+        `ALTER TABLE rides ADD COLUMN last_active_at TEXT DEFAULT CURRENT_TIMESTAMP`,
+      );
+    } catch (error) {
+      // Column already exists, ignore error
+    }
+
+    try {
+      db.exec(`ALTER TABLE rides ADD COLUMN status TEXT DEFAULT 'active'`);
+    } catch (error) {
+      // Column already exists, ignore error
+    }
+
     // Create indexes for better performance
     db.exec(`
       CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)
