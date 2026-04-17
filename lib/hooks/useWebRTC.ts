@@ -73,12 +73,20 @@ export function useWebRTC() {
       console.log(`Peer ${peerId} connection state: ${state}`);
     };
 
+    // Listen for WebRTC errors
+    const onError = ({ type, error }: { type: string; error: any }) => {
+      console.error(`[WebRTC] Error (${type}):`, error);
+      // Don't throw - just log the error
+    };
+
     webrtcManager.on("remoteAudioReady", onRemoteAudio);
     webrtcManager.on("connectionStateChange", onConnectionChange);
+    webrtcManager.on("error", onError);
 
     return () => {
       webrtcManager.off("remoteAudioReady", onRemoteAudio);
       webrtcManager.off("connectionStateChange", onConnectionChange);
+      webrtcManager.off("error", onError);
       webrtcManager.closeAll();
     };
   }, [rideCode, initializeAudio]);

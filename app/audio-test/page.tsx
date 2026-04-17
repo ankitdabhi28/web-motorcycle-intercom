@@ -47,11 +47,14 @@ export default function AudioTestPage() {
 
     pc.onicecandidate = (event) => {
       if (event.candidate) {
-        socketClient.emit("ICE_CANDIDATE", {
-          candidate: event.candidate,
-          to: remotePeerId,
-          from: peerId,
-        });
+        const socket = socketClient.getSocket();
+        if (socket) {
+          socket.emit("ICE_CANDIDATE", {
+            candidate: event.candidate,
+            to: remotePeerId,
+            from: peerId,
+          });
+        }
       }
     };
 
@@ -75,9 +78,21 @@ export default function AudioTestPage() {
       });
       setLocalStream(stream);
       return stream;
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error accessing media devices:", error);
-      alert("Could not access microphone. Please grant permission.");
+      if (error.name === "NotAllowedError") {
+        alert(
+          "Microphone permission denied. Please grant microphone access to use audio features.",
+        );
+      } else if (error.name === "NotFoundError") {
+        alert(
+          "No microphone found. Please connect a microphone to use audio features.",
+        );
+      } else {
+        alert(
+          "Could not access microphone. Please check your permissions and try again.",
+        );
+      }
       return null;
     }
   };
@@ -124,11 +139,14 @@ export default function AudioTestPage() {
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
 
-    socketClient.emit("OFFER", {
-      offer,
-      to: remotePeerId,
-      from: peerId,
-    });
+    const socket = socketClient.getSocket();
+    if (socket) {
+      socket.emit("OFFER", {
+        offer,
+        to: remotePeerId,
+        from: peerId,
+      });
+    }
 
     setCallStatus("calling");
   };
@@ -164,11 +182,14 @@ export default function AudioTestPage() {
     const answer = await pc.createAnswer();
     await pc.setLocalDescription(answer);
 
-    socketClient.emit("ANSWER", {
-      answer,
-      to: data.from,
-      from: peerId,
-    });
+    const socket = socketClient.getSocket();
+    if (socket) {
+      socket.emit("ANSWER", {
+        answer,
+        to: data.from,
+        from: peerId,
+      });
+    }
 
     setCallStatus("connected");
   };
@@ -188,17 +209,35 @@ export default function AudioTestPage() {
   };
 
   useEffect(() => {
-    socketClient.connect();
-    setIsConnected(true);
+    socketClient.connect("http://localhost:3001", "").catch((err) => {
+      console.error("Socket connection error:", err);
+    });
+
+    const socket = socketClient.getSocket();
+    if (socket) {
+      socket.on("connect", () => {
+        setIsConnected(true);
+      });
+      socket.on("disconnect", () => {
+        setIsConnected(false);
+      });
+    }
 
     const id = `peer-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
     setPeerId(id);
 
-    socketClient.on("OFFER", handleOffer);
-    socketClient.on("ANSWER", handleAnswer);
-    socketClient.on("ICE_CANDIDATE", handleIceCandidate);
+    if (socket) {
+      socket.on("OFFER", handleOffer);
+      socket.on("ANSWER", handleAnswer);
+      socket.on("ICE_CANDIDATE", handleIceCandidate);
+    }
 
     return () => {
+      if (socket) {
+        socket.off("OFFER", handleOffer);
+        socket.off("ANSWER", handleAnswer);
+        socket.off("ICE_CANDIDATE", handleIceCandidate);
+      }
       socketClient.disconnect();
       if (localStream) {
         localStream.getTracks().forEach((track) => track.stop());
