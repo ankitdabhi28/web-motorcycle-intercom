@@ -16,14 +16,19 @@ export async function createRide(
   name: string,
   createdBy: string,
 ): Promise<Ride> {
-  const stmt = db.prepare(`
-    INSERT INTO rides (ride_id, ride_code, name, created_by)
-    VALUES (?, ?, ?, ?)
-  `);
-  stmt.run(rideId, rideCode, name, createdBy);
+  try {
+    const stmt = db.prepare(`
+      INSERT INTO rides (ride_id, ride_code, name, created_by)
+      VALUES (?, ?, ?, ?)
+    `);
+    stmt.run(rideId, rideCode, name, createdBy);
 
-  const ride = await getRideById(rideId);
-  return ride!;
+    const ride = await getRideById(rideId);
+    return ride!;
+  } catch (error) {
+    console.error("Error in createRide:", error);
+    throw error;
+  }
 }
 
 export async function getRideByCode(rideCode: string): Promise<Ride | null> {

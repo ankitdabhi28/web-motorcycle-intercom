@@ -213,9 +213,11 @@ app.post("/api/rides", authMiddleware, async (req: AuthRequest, res) => {
       `Created ride: ${ride.rideCode} - ${ride.name} by ${req.user!.email}`,
     );
     res.json({ rideCode: ride.rideCode, rideId: ride.rideId });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Create ride error:", error);
-    res.status(500).json({ error: "Failed to create ride" });
+    res
+      .status(500)
+      .json({ error: "Failed to create ride", details: error.message });
   }
 });
 
